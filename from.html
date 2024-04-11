@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Submit Form Without Page Reload</title>
+</head>
+
+<body>
+    <h1>AI 機器人問答</h1>
+    <h2>問題：</h2>
+    <form id="myForm">
+        <input type="text" id="question" name="question">
+        <button type="submit">送出</button>
+    </form>
+
+    <div>
+        <h2>回答：</h2>
+        <p id="response">AI 機器人會依據你的問題進行回答。</p>
+    </div>
+
+    <script>
+        // 表單寄送後，AI 機器人問答 API
+        document.getElementById("myForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // 阻止表单默认提交行为
+
+            var formData = new FormData(this);
+
+            startLoading();
+
+            fetch('/api.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    stopLoading();
+                    console.log(data);
+                    document.getElementById("response").innerText = data['message'];
+                })
+                .catch(error => {
+                    stopLoading();
+                    document.getElementById("response").innerText = '發生錯誤';
+                    console.error('Error:', error);
+                });
+        });
+
+        // 設置 Loading 動畫
+        let loadingInterval;
+        function startLoading() {
+            let count = 0;
+            clearInterval(loadingInterval);
+
+            loadingInterval = setInterval(() => {
+                document.getElementById("response").textContent = "Loading" + ".".repeat(count % 3 + 1);
+                count++;
+            }, 1000); // 每 1 秒更新一次
+        }
+        function stopLoading() {
+            clearInterval(loadingInterval);
+        }
+    </script>
+
+</body>
+
+</html>
